@@ -1,0 +1,20 @@
+# IntelliJ IDEA
+.idea
+*.iml
+
+# Eclipse
+.classpath
+.project
+.settings
+.metadata
+bin
+
+# Gradle
+build
+gradle.properties
+.gradle
+local.properties
+
+# OS X
+*.DS_Store
+
