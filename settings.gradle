@@ -17,3 +17,5 @@ include 'services:webservice'
 */
 
 rootProject.name = 'Daedalus\' Balloon'
+
+include ':daedalus-balloon-core'
