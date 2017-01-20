@@ -1,0 +1,7 @@
+apply plugin: 'application'
+
+mainClassName = 'daedalusballoon.application.MainWindow'
+
+dependencies {
+    compile project(':daedalus-balloon-core')
+}
