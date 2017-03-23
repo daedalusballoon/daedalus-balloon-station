@@ -24,24 +24,19 @@ public class NOAAWeather {
         Imperial
     }
 
-    private NOAAWeather(String stationId) {
+    public NOAAWeather(String stationId) {
         this.stationId = stationId;
         units = Units.Metric;
     }
 
-    private NOAAWeather(String stationId, Units units) {
+    public NOAAWeather(String stationId, Units units) {
         this.stationId = stationId;
         this.units = units;
     }
 
     public void getRecentWindData() throws IOException {
         String units = this.units == Units.Metric ? "metric" : "english";
-        URL url = new URL(baseUrl+"datagetter?product=wind&date=latest&station="+stationId+"&time_zone=LST_LDT&units="+units+"&format=json&application=DaedalusBase");
-        BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-        String strTemp = "";
-        while (null != (strTemp = br.readLine())) {
-            System.out.println(strTemp);
-        }
+        Networking.getReq(baseUrl+"datagetter?product=wind&date=latest&station="+stationId+"&time_zone=LST_LDT&units="+units+"&format=json&application=DaedalusBase");
     }
 
 }
