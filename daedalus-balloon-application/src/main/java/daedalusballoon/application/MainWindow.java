@@ -4,6 +4,9 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+
 public class MainWindow extends Application {
 
     private static Stage primaryStage;
@@ -14,6 +17,14 @@ public class MainWindow extends Application {
         primaryStage.setTitle("Daedalus Balloon Station");
         primaryStage.setScene(new ConfigMenu().makeScene());
         primaryStage.show();
+
+        InvalidationListener resizeListener = new InvalidationListener() {
+            @Override
+            public void invalidated(Observable o) {
+            }
+        };
+        primaryStage.widthProperty().addListener(resizeListener);
+        primaryStage.heightProperty().addListener(resizeListener);
     }
 
     public static void main(String[] args) {
@@ -22,6 +33,19 @@ public class MainWindow extends Application {
 
     public static void changeScene(Scene scene) {
         primaryStage.setScene(scene);
-        //primaryStage.show();
     }
+
+    public static double getStageWidth() {
+        return primaryStage.getWidth();
+    }
+
+    public static double getStageHeight() {
+        return primaryStage.getHeight();
+    }
+
+    public static void setStageSize(double w, double h) {
+        primaryStage.setWidth(w);
+        primaryStage.setHeight(h);
+    }
+
 }
