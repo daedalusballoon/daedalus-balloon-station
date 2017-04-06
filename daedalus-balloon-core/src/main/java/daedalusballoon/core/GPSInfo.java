@@ -1,7 +1,9 @@
 package daedalusballoon.core;
 
 import java.io.IOException;
+
 import org.json.*;
+
 public class GPSInfo {
 
     public enum Strategy {

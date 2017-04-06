@@ -1,6 +1,6 @@
 package daedalusballoon.application;
 
-import daedalusballoon.core.GPSInfo;
+import daedalusballoon.core.FlightPathPredictor;
 
 import javafx.application.Application;
 import javafx.beans.InvalidationListener;
