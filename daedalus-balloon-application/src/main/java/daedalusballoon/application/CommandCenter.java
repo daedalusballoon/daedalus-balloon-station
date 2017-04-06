@@ -6,9 +6,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+import javafx.event.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.io.IOException;
@@ -45,19 +48,28 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
         mapView = new GoogleMapView(Locale.getDefault().getLanguage(), null);
         mapView.addMapInializedListener(this);
         mapView.setMaxHeight(MainWindow.getStageHeight()/2);
-        mapView.setMaxWidth(MainWindow.getStageWidth()*.75);
+        mapView.setMaxWidth(MainWindow.getStageWidth()*.85);
         hbox.getChildren().addAll(infoPanel, mapView);
         top.getChildren().add(hbox);
 
         Double promptHeight = MainWindow.getStageHeight()/2;
         Pane prompt = new Pane();
-        TextField output = new TextField();
+        TextArea console = new TextArea();
         VBox vbox = new VBox();
-        output.setPrefHeight(promptHeight);
+        console.setPrefHeight(promptHeight);
         vbox.setPrefWidth(MainWindow.getStageWidth());
         vbox.setPrefHeight(promptHeight);
-        vbox.getChildren().add(output);
+        vbox.getChildren().add(console);
         prompt.getChildren().add(vbox);
+
+        console.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (keyEvent.getCode() == KeyCode.ENTER)  {
+                    console.setText("");
+                }
+            }
+        });
 
         borderpane.setTop(top);
         borderpane.setBottom(prompt);
