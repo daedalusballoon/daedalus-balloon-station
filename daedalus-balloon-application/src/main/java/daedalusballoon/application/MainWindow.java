@@ -1,11 +1,13 @@
 package daedalusballoon.application;
 
+import daedalusballoon.core.GPSInfo;
+
 import javafx.application.Application;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 
 public class MainWindow extends Application {
 

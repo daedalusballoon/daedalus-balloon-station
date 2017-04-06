@@ -15,6 +15,12 @@ allprojects {
 
 }
 
+project(':daedalus-balloon-core') {
+    dependencies {
+        compile group: 'org.json', name: 'json', version: '20141113'
+    }
+}
+
 project(':daedalus-balloon-application') {
     apply plugin: 'application'
 
