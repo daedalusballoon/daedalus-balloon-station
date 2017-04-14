@@ -32,22 +32,21 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Locale;
 
+import daedalusballoon.core.FlightPath;
 import daedalusballoon.core.FlightPathPredictor;
-import daedalusballoon.core.GPSCoords;
+import daedalusballoon.core.GPSCoord;
 import org.json.*;
 
 public class CommandCenter implements SceneMaker, MapComponentInitializedListener {
 
     private GoogleMapView mapView;
     private GoogleMap map;
-    private ArrayList<Marker> markers;
     private FlightPathPredictor flp;
 
     //GUI components
     private TextArea console;
 
     public CommandCenter() {
-        markers = new ArrayList<>();
         flp = new FlightPathPredictor(FlightPathPredictor.Strategy.CUSF);
     }
 
@@ -102,28 +101,19 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
     }
 
     private void createPrediction(double lat, double lon) {
-        String res = flp.predictPath(lat, lon, 30000);
-        JSONObject jsonres = new JSONObject(res);
-        JSONArray ascending = jsonres.getJSONArray("prediction").getJSONObject(0).getJSONArray("trajectory");
-        JSONArray descending = jsonres.getJSONArray("prediction").getJSONObject(1).getJSONArray("trajectory");
-        for(int i = 0; i < ascending.length(); i++) {
-            double alat = ascending.getJSONObject(i).getDouble("latitude");
-            double alon = ascending.getJSONObject(i).getDouble("longitude");
-            addMarker(alat, alon);
-        }
-        for(int i = 0; i < descending.length(); i++) {
-            double dlat = descending.getJSONObject(i).getDouble("latitude");
-            double dlon = descending.getJSONObject(i).getDouble("longitude");
-            addMarker(dlat, dlon);
-        }
+        map.clearMarkers();
+        FlightPath fp = flp.predictPath(lat, lon, 30000);
+        addAllMarkers(fp.getAscendingCoords());
+        addAllMarkers(fp.getDescendingCoords());
+        appendConsole("FlightPath is " + (fp.hasSafeLanding() ? "safe" : "not safe") );
     }
 
     private void appendConsole(String str) {
         console.setText(console.getText() + str + "\n");
     }
 
-    private void addAllMarkers(ArrayList<GPSCoords> coords) {
-        for(GPSCoords coord : coords)
+    private void addAllMarkers(List<GPSCoord> coords) {
+        for(GPSCoord coord : coords)
             addMarker(coord.getLat(), coord.getLon());
     }
 
@@ -132,14 +122,7 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
         markerOpts.position(new LatLong(lat, lon))
                 .visible(true);
         Marker marker = new Marker(markerOpts);
-        markers.add(marker);
         map.addMarker(marker);
-    }
-
-    private void clearMarkers() {
-        for(Marker marker : markers)
-            map.removeMarker(marker);
-        markers = new ArrayList<Marker>();
     }
 
     @Override

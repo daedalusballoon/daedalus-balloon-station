@@ -4,19 +4,28 @@ import java.io.IOException;
 
 import org.json.*;
 
-public class GPSInfo {
+public class GPSCoord {
+
+    private double lat, lon;
+
+    public GPSCoord(double lat, double lon) {
+        this.lat = lat;
+        this.lon = lon;
+    }
+
+    public double getLat() {
+        return lat;
+    }
+
+    public double getLon() {
+        return lon;
+    }
 
     public enum Strategy {
         GOOGLE_MAPS
     }
 
-    private Strategy strategy;
-
-    public GPSInfo(Strategy strategy) {
-        this.strategy = strategy;
-    }
-
-    public boolean isInWater(double lat, double lon) {
+    public static boolean isInWater(double lat, double lon, Strategy strategy) {
         try {
             double lowLat = latOffset(lat, -15);
             double lowLon = lonOffset(lon, -15, lat);
@@ -38,14 +47,14 @@ public class GPSInfo {
     }
 
     // Approximate Earth Radius
-    private double R = 6378137;
+    private static final double R = 6378137;
 
-    private double latOffset(double lat, double km) {
+    private static double latOffset(double lat, double km) {
         double m = km * 1000;
         return lat + (m/R) * (180/Math.PI);
     }
 
-    private double lonOffset(double lon, double km, double lat) {
+    private static double lonOffset(double lon, double km, double lat) {
         double m = km * 1000;
         double dlon = (m/(R*Math.cos(Math.PI*lat/180)));
         return lon + dlon * 180/Math.PI;
