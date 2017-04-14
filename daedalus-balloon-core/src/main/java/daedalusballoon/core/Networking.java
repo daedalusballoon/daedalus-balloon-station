@@ -17,7 +17,6 @@ public class Networking {
         StringBuilder response = new StringBuilder();
 
         while (null != (strTemp = br.readLine())) {
-            System.out.println(strTemp);
             response.append(strTemp);
         }
 

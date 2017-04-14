@@ -16,6 +16,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.io.IOException;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
@@ -31,10 +32,24 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.Locale;
 
+import daedalusballoon.core.FlightPathPredictor;
+import daedalusballoon.core.GPSCoords;
+import org.json.*;
+
 public class CommandCenter implements SceneMaker, MapComponentInitializedListener {
 
     private GoogleMapView mapView;
     private GoogleMap map;
+    private ArrayList<Marker> markers;
+    private FlightPathPredictor flp;
+
+    //GUI components
+    private TextArea console;
+
+    public CommandCenter() {
+        markers = new ArrayList<>();
+        flp = new FlightPathPredictor(FlightPathPredictor.Strategy.CUSF);
+    }
 
     @Override
     public Scene makeScene() {
@@ -54,19 +69,27 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
 
         Double promptHeight = MainWindow.getStageHeight()/2;
         Pane prompt = new Pane();
-        TextArea console = new TextArea();
+        console = new TextArea();
+        TextField input = new TextField();
         VBox vbox = new VBox();
-        console.setPrefHeight(promptHeight);
+        console.setPrefHeight(promptHeight*0.8);
+        input.setPrefHeight(promptHeight*0.1);
         vbox.setPrefWidth(MainWindow.getStageWidth());
         vbox.setPrefHeight(promptHeight);
-        vbox.getChildren().add(console);
+        vbox.getChildren().addAll(console, input);
         prompt.getChildren().add(vbox);
 
-        console.setOnKeyPressed(new EventHandler<KeyEvent>() {
+        input.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
                 if (keyEvent.getCode() == KeyCode.ENTER)  {
-                    console.setText("");
+                    String[] inputargs = input.getText().split("\\s+");
+                    switch(inputargs[0]) {
+                        case "launch": createPrediction(Double.parseDouble(inputargs[1]),
+                                                        Double.parseDouble(inputargs[2])); break;
+                        default : appendConsole("Unrecognized command"); break;
+                    }
+                    input.setText("");
                 }
             }
         });
@@ -78,11 +101,52 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
         return scene;
     }
 
+    private void createPrediction(double lat, double lon) {
+        String res = flp.predictPath(lat, lon, 30000);
+        JSONObject jsonres = new JSONObject(res);
+        JSONArray ascending = jsonres.getJSONArray("prediction").getJSONObject(0).getJSONArray("trajectory");
+        JSONArray descending = jsonres.getJSONArray("prediction").getJSONObject(1).getJSONArray("trajectory");
+        for(int i = 0; i < ascending.length(); i++) {
+            double alat = ascending.getJSONObject(i).getDouble("latitude");
+            double alon = ascending.getJSONObject(i).getDouble("longitude");
+            addMarker(alat, alon);
+        }
+        for(int i = 0; i < descending.length(); i++) {
+            double dlat = descending.getJSONObject(i).getDouble("latitude");
+            double dlon = descending.getJSONObject(i).getDouble("longitude");
+            addMarker(dlat, dlon);
+        }
+    }
+
+    private void appendConsole(String str) {
+        console.setText(console.getText() + str + "\n");
+    }
+
+    private void addAllMarkers(ArrayList<GPSCoords> coords) {
+        for(GPSCoords coord : coords)
+            addMarker(coord.getLat(), coord.getLon());
+    }
+
+    private void addMarker(double lat, double lon) {
+        MarkerOptions markerOpts = new MarkerOptions();
+        markerOpts.position(new LatLong(lat, lon))
+                .visible(true);
+        Marker marker = new Marker(markerOpts);
+        markers.add(marker);
+        map.addMarker(marker);
+    }
+
+    private void clearMarkers() {
+        for(Marker marker : markers)
+            map.removeMarker(marker);
+        markers = new ArrayList<Marker>();
+    }
+
     @Override
     public void mapInitialized() {
         MapOptions mapOptions = new MapOptions();
 
-        mapOptions.center(new LatLong(25.757362, -80.370596))
+        mapOptions.center(new LatLong(52.2135, 0.0964))
                 .mapMarker(true)
                 .zoom(13)
                 .overviewMapControl(false)
