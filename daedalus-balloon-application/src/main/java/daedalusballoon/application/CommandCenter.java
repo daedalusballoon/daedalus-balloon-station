@@ -20,6 +20,9 @@ import java.util.ArrayList;
 
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
+import com.lynden.gmapsfx.javascript.event.GMapMouseEvent;
+import com.lynden.gmapsfx.javascript.event.MouseEventHandler;
+import com.lynden.gmapsfx.javascript.event.UIEventType;
 import com.lynden.gmapsfx.javascript.object.GoogleMap;
 import com.lynden.gmapsfx.javascript.object.LatLong;
 import com.lynden.gmapsfx.javascript.object.MapOptions;
@@ -45,6 +48,8 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
 
     //GUI components
     private TextArea console;
+
+    private Marker inputMarker;
 
     public CommandCenter() {
         flp = new FlightPathPredictor(FlightPathPredictor.Strategy.CUSF);
@@ -89,6 +94,10 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
                         default : appendConsole("Unrecognized command"); break;
                     }
                     input.setText("");
+                } else if(keyEvent.getCode() == KeyCode.TAB) {
+
+                    //Ends the tab key event to prevent from tab keyevent to lose focus of the textfield
+                    keyEvent.consume();
                 }
             }
         });
@@ -125,6 +134,16 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
         map.addMarker(marker);
     }
 
+    private void setInputMarker(double lat, double lon) {
+        inputMarker.setPosition(new LatLong(lat, lon));
+        refreshMap();
+    }
+
+    private void refreshMap() {
+        map.setZoom(map.getZoom()+1);
+        map.setZoom(map.getZoom()-1);
+    }
+
     @Override
     public void mapInitialized() {
         MapOptions mapOptions = new MapOptions();
@@ -141,5 +160,16 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
                 .mapType(MapTypeIdEnum.TERRAIN);
         map = mapView.createMap(mapOptions, false);
 
+        map.addMouseEventHandler(null, UIEventType.click, new MouseEventHandler() {
+            public void handle(GMapMouseEvent event) {
+                LatLong latLong = event.getLatLong();
+                setInputMarker(latLong.getLatitude(), latLong.getLongitude());
+            }
+        });
+
+        MarkerOptions markerOpts = new MarkerOptions();
+        markerOpts.visible(true);
+        inputMarker = new Marker(markerOpts);
+        map.addMarker(inputMarker);
     }
 }
