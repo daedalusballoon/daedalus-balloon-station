@@ -44,15 +44,22 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
 
     private GoogleMapView mapView;
     private GoogleMap map;
+
+    private FlightPath fp;
     private FlightPathPredictor flp;
 
     //GUI components
     private TextArea console;
+    private TextField input;
 
     private Marker inputMarker;
+    private double inputLat;
+    private double inputLon;
 
     public CommandCenter() {
         flp = new FlightPathPredictor(FlightPathPredictor.Strategy.CUSF);
+        console = new TextArea();
+        input = new TextField();
     }
 
     @Override
@@ -73,8 +80,6 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
 
         Double promptHeight = MainWindow.getStageHeight()/2;
         Pane prompt = new Pane();
-        console = new TextArea();
-        TextField input = new TextField();
         VBox vbox = new VBox();
         console.setPrefHeight(promptHeight*0.8);
         input.setPrefHeight(promptHeight*0.1);
@@ -91,11 +96,18 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
                     switch(inputargs[0]) {
                         case "launch": createPrediction(Double.parseDouble(inputargs[1]),
                                                         Double.parseDouble(inputargs[2])); break;
+                        case "adjust":
+                            if(fp != null)
+                                fp.closestPathPoint(new GPSCoord(
+                                Double.parseDouble(inputargs[1]),
+                                Double.parseDouble(inputargs[2])));
+                            break;
                         default : appendConsole("Unrecognized command"); break;
                     }
                     input.setText("");
                 } else if(keyEvent.getCode() == KeyCode.TAB) {
-
+                    tabInput();
+                    input.positionCaret(input.getText().length());
                     //Ends the tab key event to prevent from tab keyevent to lose focus of the textfield
                     keyEvent.consume();
                 }
@@ -111,7 +123,7 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
 
     private void createPrediction(double lat, double lon) {
         map.clearMarkers();
-        FlightPath fp = flp.predictPath(lat, lon, 30000);
+        fp = flp.predictPath(lat, lon, 30000);
         addAllMarkers(fp.getAscendingCoords());
         addAllMarkers(fp.getDescendingCoords());
         appendConsole("FlightPath is " + (fp.hasSafeLanding() ? "safe" : "not safe") );
@@ -119,6 +131,10 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
 
     private void appendConsole(String str) {
         console.setText(console.getText() + str + "\n");
+    }
+
+    private void tabInput() {
+        input.setText(input.getText() + " " + inputLat + " " + inputLon);
     }
 
     private void addAllMarkers(List<GPSCoord> coords) {
@@ -136,6 +152,8 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
 
     private void setInputMarker(double lat, double lon) {
         inputMarker.setPosition(new LatLong(lat, lon));
+        inputLat = lat;
+        inputLon = lon;
         refreshMap();
     }
 

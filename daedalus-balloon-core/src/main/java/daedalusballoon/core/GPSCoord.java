@@ -8,6 +8,9 @@ public class GPSCoord {
 
     private double lat, lon;
 
+    // Approximate Earth Radius in km
+    private static final double R = 6378.137;
+
     public GPSCoord(double lat, double lon) {
         this.lat = lat;
         this.lon = lon;
@@ -23,6 +26,17 @@ public class GPSCoord {
 
     public enum Strategy {
         GOOGLE_MAPS
+    }
+
+    public static double distance(GPSCoord coord1, GPSCoord coord2) {
+        double latDiff = Math.toRadians(coord2.getLat() - coord1.getLat());
+        double lonDiff = Math.toRadians(coord2.getLon() - coord1.getLon());
+        double a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2)
+                + Math.cos(Math.toRadians(coord1.getLat())) * Math.cos(Math.toRadians(coord2.getLat()))
+                * Math.sin(lonDiff / 2) * Math.sin(lonDiff / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c; // distance in kilometers
     }
 
     public static boolean isInWater(double lat, double lon, Strategy strategy) {
@@ -46,9 +60,6 @@ public class GPSCoord {
         return false;
     }
 
-    // Approximate Earth Radius
-    private static final double R = 6378137;
-
     private static double latOffset(double lat, double km) {
         double m = km * 1000;
         return lat + (m/R) * (180/Math.PI);
@@ -58,5 +69,10 @@ public class GPSCoord {
         double m = km * 1000;
         double dlon = (m/(R*Math.cos(Math.PI*lat/180)));
         return lon + dlon * 180/Math.PI;
+    }
+
+    @Override
+    public String toString() {
+        return "Latitude: " + lat + ", Longitude: " + lon;
     }
 }

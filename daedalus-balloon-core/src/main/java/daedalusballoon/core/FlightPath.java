@@ -32,4 +32,23 @@ public class FlightPath {
         GPSCoord landing = descendingCoords.getLast();
         return !GPSCoord.isInWater(landing.getLat(), landing.getLon(), GPSCoord.Strategy.GOOGLE_MAPS);
     }
+
+    //finds the closest point on the path to another point
+    public GPSCoord closestPathPoint(GPSCoord coord) {
+        GPSCoord minDisCoord = ascendingCoords.getFirst();
+        double minDistance = GPSCoord.distance(minDisCoord, coord);
+        for(GPSCoord acoord : ascendingCoords) {
+            if(GPSCoord.distance(acoord, coord) < minDistance) {
+                minDisCoord = acoord;
+                minDistance = GPSCoord.distance(acoord, coord);
+            }
+        }
+        for(GPSCoord dcoord : descendingCoords) {
+            if(GPSCoord.distance(dcoord, coord) < minDistance) {
+                minDisCoord = dcoord;
+                minDistance = GPSCoord.distance(dcoord, coord);
+            }
+        }
+        return minDisCoord;
+    }
 }
