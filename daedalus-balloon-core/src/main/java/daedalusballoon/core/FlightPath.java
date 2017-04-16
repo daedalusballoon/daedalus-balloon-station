@@ -6,10 +6,12 @@ public class FlightPath {
 
     private LinkedList<GPSCoord> ascendingCoords;
     private LinkedList<GPSCoord> descendingCoords;
+    private double totalDistance;
 
     public FlightPath() {
         ascendingCoords = new LinkedList<GPSCoord>();
         descendingCoords = new LinkedList<GPSCoord>();
+        totalDistance = -1;
     }
 
     public void addAscendingCoord(double lat, double lon) {
@@ -26,6 +28,10 @@ public class FlightPath {
 
     public LinkedList<GPSCoord> getDescendingCoords() {
         return descendingCoords;
+    }
+
+    public GPSCoord getLaunchCoord() {
+        return ascendingCoords.getFirst();
     }
 
     public boolean hasSafeLanding() {
@@ -50,5 +56,34 @@ public class FlightPath {
             }
         }
         return minDisCoord;
+    }
+
+    public double totalDistance() {
+        if(totalDistance == -1)
+            return totalDistance = subpathDist(descendingCoords.getLast());
+        else
+            return totalDistance;
+    }
+
+    public double subpathDist(GPSCoord coord) {
+        GPSCoord prevcoord = ascendingCoords.getFirst();
+        GPSCoord currcoord = ascendingCoords.getFirst();
+        double distance = 0.0;
+        for(GPSCoord acoord : ascendingCoords) {
+            currcoord = acoord;
+            if(coord == currcoord)
+                return distance;
+            distance += GPSCoord.distance(prevcoord, currcoord);
+            prevcoord = currcoord;
+        }
+        prevcoord = descendingCoords.getFirst();
+        for(GPSCoord dcoord : descendingCoords) {
+            currcoord = dcoord;
+            if(coord == currcoord)
+                return distance;
+            distance += GPSCoord.distance(prevcoord, currcoord);
+            prevcoord = currcoord;
+        }
+        return -1;
     }
 }

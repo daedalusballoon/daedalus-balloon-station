@@ -29,6 +29,9 @@ import com.lynden.gmapsfx.javascript.object.MapOptions;
 import com.lynden.gmapsfx.javascript.object.Marker;
 import com.lynden.gmapsfx.javascript.object.MarkerOptions;
 import com.lynden.gmapsfx.javascript.object.MapTypeIdEnum;
+import com.lynden.gmapsfx.javascript.object.MVCArray;
+import com.lynden.gmapsfx.shapes.Polyline;
+import com.lynden.gmapsfx.shapes.PolylineOptions;
 
 import javafx.fxml.Initializable;
 import java.net.URL;
@@ -95,12 +98,18 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
                     String[] inputargs = input.getText().split("\\s+");
                     switch(inputargs[0]) {
                         case "launch": createPrediction(Double.parseDouble(inputargs[1]),
-                                                        Double.parseDouble(inputargs[2])); break;
+                                                        Double.parseDouble(inputargs[2]),
+                                                        30000); break;
                         case "adjust":
-                            if(fp != null)
-                                fp.closestPathPoint(new GPSCoord(
-                                Double.parseDouble(inputargs[1]),
-                                Double.parseDouble(inputargs[2])));
+                            if(fp != null) {
+                                GPSCoord adjustPoint = fp.closestPathPoint(new GPSCoord(
+                                                            Double.parseDouble(inputargs[1]),
+                                                            Double.parseDouble(inputargs[2])));
+                                double ratio = fp.subpathDist(adjustPoint)/fp.totalDistance();
+                                createPrediction(fp.getLaunchCoord().getLat(),
+                                                fp.getLaunchCoord().getLon(),
+                                                30000*ratio); break;
+                            }
                             break;
                         default : appendConsole("Unrecognized command"); break;
                     }
@@ -113,7 +122,6 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
                 }
             }
         });
-
         borderpane.setTop(top);
         borderpane.setBottom(prompt);
 
@@ -121,11 +129,24 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
         return scene;
     }
 
-    private void createPrediction(double lat, double lon) {
+    private void createPrediction(double lat, double lon, double burstalt) {
         map.clearMarkers();
-        fp = flp.predictPath(lat, lon, 30000);
-        addAllMarkers(fp.getAscendingCoords());
-        addAllMarkers(fp.getDescendingCoords());
+        fp = flp.predictPath(lat, lon, burstalt);
+        int i = 0;
+        LatLong[] gpsarr = new LatLong[fp.getAscendingCoords().size()+fp.getDescendingCoords().size()];
+        for(GPSCoord coord : fp.getAscendingCoords()) {
+            gpsarr[i++] = new LatLong(coord.getLat(), coord.getLon());
+        }
+        for(GPSCoord coord : fp.getDescendingCoords()) {
+            gpsarr[i++] = new LatLong(coord.getLat(), coord.getLon());
+        }
+        MVCArray mvc = new MVCArray(gpsarr);
+        PolylineOptions polyOpts = new PolylineOptions()
+                .path(mvc)
+                .strokeColor("red")
+                .strokeWeight(2);
+        Polyline poly = new Polyline(polyOpts);
+        map.addMapShape(poly);
         appendConsole("FlightPath is " + (fp.hasSafeLanding() ? "safe" : "not safe") );
     }
 
