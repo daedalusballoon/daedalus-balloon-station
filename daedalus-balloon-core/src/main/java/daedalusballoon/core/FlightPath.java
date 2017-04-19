@@ -4,55 +4,55 @@ import java.util.LinkedList;
 
 public class FlightPath {
 
-    private LinkedList<GPSCoord> ascendingCoords;
-    private LinkedList<GPSCoord> descendingCoords;
+    private LinkedList<Coord> ascendingCoords;
+    private LinkedList<Coord> descendingCoords;
     private double totalDistance;
 
     public FlightPath() {
-        ascendingCoords = new LinkedList<GPSCoord>();
-        descendingCoords = new LinkedList<GPSCoord>();
+        ascendingCoords = new LinkedList<Coord>();
+        descendingCoords = new LinkedList<Coord>();
         totalDistance = -1;
     }
 
     public void addAscendingCoord(double lat, double lon) {
-        ascendingCoords.add(new GPSCoord(lat, lon));
+        ascendingCoords.add(new Coord(lat, lon));
     }
 
-    public LinkedList<GPSCoord> getAscendingCoords() {
+    public LinkedList<Coord> getAscendingCoords() {
         return ascendingCoords;
     }
 
     public void addDescendingCoord(double lat, double lon) {
-        descendingCoords.add(new GPSCoord(lat, lon));
+        descendingCoords.add(new Coord(lat, lon));
     }
 
-    public LinkedList<GPSCoord> getDescendingCoords() {
+    public LinkedList<Coord> getDescendingCoords() {
         return descendingCoords;
     }
 
-    public GPSCoord getLaunchCoord() {
+    public Coord getLaunchCoord() {
         return ascendingCoords.getFirst();
     }
 
     public boolean hasSafeLanding() {
-        GPSCoord landing = descendingCoords.getLast();
-        return !GPSCoord.isInWater(landing.getLat(), landing.getLon(), GPSCoord.Strategy.GOOGLE_MAPS);
+        Coord landing = descendingCoords.getLast();
+        return !Coord.isInWater(landing.getLat(), landing.getLon(), Coord.Strategy.GOOGLE_MAPS);
     }
 
     //finds the closest point on the path to another point
-    public GPSCoord closestPathPoint(GPSCoord coord) {
-        GPSCoord minDisCoord = ascendingCoords.getFirst();
-        double minDistance = GPSCoord.distance(minDisCoord, coord);
-        for(GPSCoord acoord : ascendingCoords) {
-            if(GPSCoord.distance(acoord, coord) < minDistance) {
+    public Coord closestPathPoint(Coord coord) {
+        Coord minDisCoord = ascendingCoords.getFirst();
+        double minDistance = Coord.distance(minDisCoord, coord);
+        for(Coord acoord : ascendingCoords) {
+            if(Coord.distance(acoord, coord) < minDistance) {
                 minDisCoord = acoord;
-                minDistance = GPSCoord.distance(acoord, coord);
+                minDistance = Coord.distance(acoord, coord);
             }
         }
-        for(GPSCoord dcoord : descendingCoords) {
-            if(GPSCoord.distance(dcoord, coord) < minDistance) {
+        for(Coord dcoord : descendingCoords) {
+            if(Coord.distance(dcoord, coord) < minDistance) {
                 minDisCoord = dcoord;
-                minDistance = GPSCoord.distance(dcoord, coord);
+                minDistance = Coord.distance(dcoord, coord);
             }
         }
         return minDisCoord;
@@ -65,23 +65,23 @@ public class FlightPath {
             return totalDistance;
     }
 
-    public double subpathDist(GPSCoord coord) {
-        GPSCoord prevcoord = ascendingCoords.getFirst();
-        GPSCoord currcoord = ascendingCoords.getFirst();
+    public double subpathDist(Coord coord) {
+        Coord prevcoord = ascendingCoords.getFirst();
+        Coord currcoord = ascendingCoords.getFirst();
         double distance = 0.0;
-        for(GPSCoord acoord : ascendingCoords) {
+        for(Coord acoord : ascendingCoords) {
             currcoord = acoord;
             if(coord == currcoord)
                 return distance;
-            distance += GPSCoord.distance(prevcoord, currcoord);
+            distance += Coord.distance(prevcoord, currcoord);
             prevcoord = currcoord;
         }
         prevcoord = descendingCoords.getFirst();
-        for(GPSCoord dcoord : descendingCoords) {
+        for(Coord dcoord : descendingCoords) {
             currcoord = dcoord;
             if(coord == currcoord)
                 return distance;
-            distance += GPSCoord.distance(prevcoord, currcoord);
+            distance += Coord.distance(prevcoord, currcoord);
             prevcoord = currcoord;
         }
         return -1;

@@ -8,15 +8,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 
 import javafx.event.*;
-import java.io.File;
-import java.nio.file.Files;
-import java.io.IOException;
+
 import java.util.List;
-import java.util.ArrayList;
 
 import com.lynden.gmapsfx.GoogleMapView;
 import com.lynden.gmapsfx.MapComponentInitializedListener;
@@ -33,14 +28,10 @@ import com.lynden.gmapsfx.javascript.object.MVCArray;
 import com.lynden.gmapsfx.shapes.Polyline;
 import com.lynden.gmapsfx.shapes.PolylineOptions;
 
-import javafx.fxml.Initializable;
-import java.net.URL;
-import java.util.ResourceBundle;
 import java.util.Locale;
 
 import daedalusballoon.core.FlightPath;
 import daedalusballoon.core.FlightPathPredictor;
-import daedalusballoon.core.GPSCoord;
 import org.json.*;
 
 public class CommandCenter implements SceneMaker, MapComponentInitializedListener {
@@ -102,7 +93,7 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
                                                         30000); break;
                         case "adjust":
                             if(fp != null) {
-                                GPSCoord adjustPoint = fp.closestPathPoint(new GPSCoord(
+                                daedalusballoon.core.Coord adjustPoint = fp.closestPathPoint(new daedalusballoon.core.Coord(
                                                             Double.parseDouble(inputargs[1]),
                                                             Double.parseDouble(inputargs[2])));
                                 double ratio = fp.subpathDist(adjustPoint)/fp.totalDistance();
@@ -134,10 +125,10 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
         fp = flp.predictPath(lat, lon, burstalt);
         int i = 0;
         LatLong[] gpsarr = new LatLong[fp.getAscendingCoords().size()+fp.getDescendingCoords().size()];
-        for(GPSCoord coord : fp.getAscendingCoords()) {
+        for(daedalusballoon.core.Coord coord : fp.getAscendingCoords()) {
             gpsarr[i++] = new LatLong(coord.getLat(), coord.getLon());
         }
-        for(GPSCoord coord : fp.getDescendingCoords()) {
+        for(daedalusballoon.core.Coord coord : fp.getDescendingCoords()) {
             gpsarr[i++] = new LatLong(coord.getLat(), coord.getLon());
         }
         MVCArray mvc = new MVCArray(gpsarr);
@@ -158,8 +149,8 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
         input.setText(input.getText() + " " + inputLat + " " + inputLon);
     }
 
-    private void addAllMarkers(List<GPSCoord> coords) {
-        for(GPSCoord coord : coords)
+    private void addAllMarkers(List<daedalusballoon.core.Coord> coords) {
+        for(daedalusballoon.core.Coord coord : coords)
             addMarker(coord.getLat(), coord.getLon());
     }
 

@@ -4,16 +4,22 @@ import java.io.IOException;
 
 import org.json.*;
 
-public class GPSCoord {
+public class Coord {
 
-    private double lat, lon;
+    private double lat, lon, alt;
 
     // Approximate Earth Radius in km
     private static final double R = 6378.137;
 
-    public GPSCoord(double lat, double lon) {
+    public Coord(double lat, double lon) {
         this.lat = lat;
         this.lon = lon;
+    }
+
+    public Coord(double lat, double lon, double alt) {
+        this.lat = lat;
+        this.lon = lon;
+        this.alt = alt;
     }
 
     public double getLat() {
@@ -24,11 +30,15 @@ public class GPSCoord {
         return lon;
     }
 
+    public double getAlt() {
+        return alt;
+    }
+
     public enum Strategy {
         GOOGLE_MAPS
     }
 
-    public static double distance(GPSCoord coord1, GPSCoord coord2) {
+    public static double distance(Coord coord1, Coord coord2) {
         double latDiff = Math.toRadians(coord2.getLat() - coord1.getLat());
         double lonDiff = Math.toRadians(coord2.getLon() - coord1.getLon());
         double a = Math.sin(latDiff / 2) * Math.sin(latDiff / 2)
