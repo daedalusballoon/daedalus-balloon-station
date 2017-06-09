@@ -32,6 +32,7 @@ import java.util.Locale;
 
 import daedalusballoon.core.FlightPath;
 import daedalusballoon.core.FlightPathPredictor;
+import daedalusballoon.core.WeatherBalloon;
 import org.json.*;
 
 public class CommandCenter implements SceneMaker, MapComponentInitializedListener {
@@ -49,6 +50,8 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
     private Marker inputMarker;
     private double inputLat;
     private double inputLon;
+
+    public static WeatherBalloon wb;
 
     public CommandCenter() {
         flp = new FlightPathPredictor(FlightPathPredictor.Strategy.CUSF);

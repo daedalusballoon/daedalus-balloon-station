@@ -1,6 +1,14 @@
 package daedalusballoon.application;
 
 import daedalusballoon.core.FlightPathPredictor;
+import daedalusballoon.core.WeatherBalloon;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
 
 import javafx.application.Application;
 import javafx.beans.InvalidationListener;
@@ -19,6 +27,24 @@ public class MainWindow extends Application {
         primaryStage.setTitle("Daedalus Balloon Station");
         primaryStage.setScene(new ConfigMenu().makeScene());
         primaryStage.show();
+
+        Path configPath = Paths.get(System.getProperty("user.home"), "Daedalus");
+        if(!Files.exists(configPath) || !Files.isDirectory(configPath)) {
+            try {
+                Files.createDirectories(configPath);
+                Files.createFile(Paths.get(configPath.toString(), "weatherballoon.properties"));
+            } catch(IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            Properties prop = new Properties();
+            prop.load(new FileInputStream(configPath.toString() + "/weatherballoon.properties"));
+            System.out.println(prop.getProperty("burst_alt"));
+            WeatherBalloon wb = new WeatherBalloon();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
 
         InvalidationListener resizeListener = new InvalidationListener() {
             @Override
