@@ -91,18 +91,18 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
                 if (keyEvent.getCode() == KeyCode.ENTER)  {
                     String[] inputargs = input.getText().split("\\s+");
                     switch(inputargs[0]) {
-                        case "launch": createPrediction(Double.parseDouble(inputargs[1]),
-                                                        Double.parseDouble(inputargs[2]),
-                                                        30000); break;
+                        case "launch": createPrediction(Double.parseDouble(inputargs[1]), Double.parseDouble(inputargs[2]),
+                                                        wb.getAscendRate(), wb.getDescendRate(), wb.getBurstAlt());
+                        break;
                         case "adjust":
                             if(fp != null) {
                                 daedalusballoon.core.Coord adjustPoint = fp.closestPathPoint(new daedalusballoon.core.Coord(
                                                             Double.parseDouble(inputargs[1]),
                                                             Double.parseDouble(inputargs[2])));
                                 double ratio = fp.subpathDist(adjustPoint)/fp.totalDistance();
-                                createPrediction(fp.getLaunchCoord().getLat(),
-                                                fp.getLaunchCoord().getLon(),
-                                                30000*ratio); break;
+                                createPrediction(fp.getLaunchCoord().getLat(), fp.getLaunchCoord().getLon(),
+                                        wb.getAscendRate(), wb.getDescendRate(), wb.getBurstAlt()*ratio);
+                                break;
                             }
                             break;
                         default : appendConsole("Unrecognized command"); break;
@@ -123,9 +123,9 @@ public class CommandCenter implements SceneMaker, MapComponentInitializedListene
         return scene;
     }
 
-    private void createPrediction(double lat, double lon, double burstalt) {
+    private void createPrediction(double lat, double lon, double ascent_rate, double descent_rate, double burstalt) {
         map.clearMarkers();
-        fp = flp.predictPath(lat, lon, burstalt);
+        fp = flp.predictPath(lat, lon, ascent_rate, descent_rate, burstalt);
         int i = 0;
         LatLong[] gpsarr = new LatLong[fp.getAscendingCoords().size()+fp.getDescendingCoords().size()];
         for(daedalusballoon.core.Coord coord : fp.getAscendingCoords()) {

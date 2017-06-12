@@ -12,18 +12,20 @@ public class FlightPathPredictor {
         CUSF
     }
 
+
     private Strategy strategy;
 
     public FlightPathPredictor(Strategy strategy) {
         this.strategy = strategy;
     }
 
-    public FlightPath predictPath(double lat, double lon, double burst) {
+    public FlightPath predictPath(double lat, double lon, double ascent_rate, double descent_rate, double burst) {
         String date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(new Date());
         try {
 
-            String res = Networking.getReq("http://predict.cusf.co.uk/api/v1/?launch_latitude=" + lat + "&launch_longitude=" + lon +
-                    "&launch_datetime=" + date + "&ascent_rate=5&descent_rate=10&burst_altitude=" + burst);
+            String res = Networking.getReq("http://predict.cusf.co.uk/api/v1/?launch_latitude=" + lat +
+                    "&launch_longitude=" + lon + "&launch_datetime=" + date + "&ascent_rate=" + ascent_rate +
+                    "&descent_rate=" + descent_rate + "&burst_altitude=" + burst);
             FlightPath fp = new FlightPath();
             JSONObject jsonres = new JSONObject(res);
             JSONArray ascending = jsonres.getJSONArray("prediction").getJSONObject(0).getJSONArray("trajectory");

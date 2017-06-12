@@ -38,10 +38,9 @@ public class MainWindow extends Application {
             }
         }
         try {
-            Properties prop = new Properties();
-            prop.load(new FileInputStream(configPath.toString() + "/weatherballoon.properties"));
-            System.out.println(prop.getProperty("burst_alt"));
-            WeatherBalloon wb = new WeatherBalloon();
+            Properties props = new Properties();
+            props.load(new FileInputStream(configPath.toString() + "/weatherballoon.properties"));
+            CommandCenter.wb = new WeatherBalloon(props);
         } catch(IOException e) {
             e.printStackTrace();
         }
