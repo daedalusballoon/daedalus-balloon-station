@@ -20,6 +20,8 @@ public class FlightPathPredictor {
     }
 
     public FlightPath predictPath(double lat, double lon, double ascent_rate, double descent_rate, double burst) {
+        if(lon < 0)
+            lon += 360;
         String date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(new Date());
         try {
 
